@@ -1,0 +1,6 @@
+openapi: "3.0.0"
+info:
+  title: XYZ Ecommerce API
+  version: 1.0.0
+  description: An API that enlists ecommerce items and handles purchase details
+paths:
