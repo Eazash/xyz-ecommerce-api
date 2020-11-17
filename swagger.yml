@@ -16,8 +16,34 @@ components:
           type: integer
         description:
           type: string
-
-
+        vendor:
+          type: object
+          description: The vendor of the Item
+    User:
+      required:
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    Token:
+      description: A *JSONWebToken* required for authenticating requests
+      properties:
+        token:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
 paths:
   /api/items:
     get:
@@ -65,7 +91,6 @@ paths:
       responses:
         '201':
           description: created
-
   /api/items/{id}:
     get:
       summary: Returns an item
@@ -107,3 +132,39 @@ paths:
             type: string
             description: The id of the item to be deleted
           required: true
+  /api/users:
+    post:
+      summary: Register a new User
+      requestBody:
+        description: The User to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User succesfully registered
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Token'
+      security: []
+  /api/users/login:
+    post:
+      summary: A login route
+      requestBody:
+        description: The User to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/Token"
+      security: []
