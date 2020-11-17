@@ -10,6 +10,7 @@ require('dotenv').config()
 
 const swagger_options = YAML.load('./swagger.yml');
 const swaggerUi = require('swagger-ui-express');
+const auth = require('./middleware/auth');
 
 mongoose.connect(DB_URL, {
   useCreateIndex: true,
@@ -21,6 +22,9 @@ mongoose.connect(DB_URL, {
   process.exit(1);
 })
 app.use(express.json({ extended: false }));
+//Register auth middleware
+app.use('/api', auth);
+
 //Register handler for Item routes
 app.use('/api/items', require("./routes/items"));
 
