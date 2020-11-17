@@ -8,10 +8,10 @@ router.get('/', async (req, res) => {
   const skip = parseInt(req.params.skip);
   try {
     if (req.query.sortBy === "price" || ["desc", "asc"].includes(req.query.order)) {
-      const items = await Item.find().skip(skip).limit(limit).populate("vendor").sort({ price: req.query.order })
+      const items = await Item.find().skip(skip).limit(limit).populate("vendor", ["username", "email"]).sort({ price: req.query.order })
       return res.json(items);
     }
-    const items = await Item.find({}).skip(skip).limit(limit).populate("vendor")
+    const items = await Item.find({}).skip(skip).limit(limit).populate("vendor", ["username", "email"])
     return res.json(items);
   } catch (error) {
     console.log(error)
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const item = await Item.findById(req.params.id).populate('vendor');
+    const item = await Item.findById(req.params.id).populate('vendor', 'username');
     if (item === null) {
       return res.sendStatus(404)
     }
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const itemData = ({ name, description, price } = req.body);
   try {
-    const item = new Item({ ...itemData });
+    const item = new Item({ ...itemData, vendor: req.user.id });
     await item.save();
     return res.json(item);
   } catch (error) {

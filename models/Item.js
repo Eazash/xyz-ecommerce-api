@@ -12,7 +12,7 @@ const ItemSchema = new Schema({
   description: String,
   vendor: {
     type: Schema.Types.ObjectId,
-    ref: "user"
+    ref: "User"
   }
 })
 module.exports = Item = new model("Item", ItemSchema);
