@@ -3,4 +3,107 @@ info:
   title: XYZ Ecommerce API
   version: 1.0.0
   description: An API that enlists ecommerce items and handles purchase details
+components:
+  schemas:
+    Item:
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+        price:
+          type: integer
+        description:
+          type: string
+
+
 paths:
+  /api/items:
+    get:
+      summary: Returns a list of all available items
+      responses:
+        '200':
+          description: An array of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+      parameters:
+        - in: query
+          name: skip
+          schema:
+            type: integer
+            description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            description: The numbers of items to return
+        - in: query
+          name: sortBy
+          schema:
+              type: string
+              description: The field to be used to sort 
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            description: The order in which to display
+    post:
+      summary: Add a new Item
+      requestBody:
+        description: The item to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: created
+
+  /api/items/{id}:
+    get:
+      summary: Returns an item
+      responses:
+        '200':
+          description: An Item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            description: The id of the item to fetch
+          required: true
+    put:
+      summary: Update an Item
+      responses:
+        '200':
+          description: Item updated
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            description: The id of the item to update
+          required: true
+    delete:
+      summary: Delete an Item
+      responses:
+        '200':
+          description: Item deleted
+      parameters:
+        - in: path 
+          name: id
+          schema:
+            type: string
+            description: The id of the item to be deleted
+          required: true

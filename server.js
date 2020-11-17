@@ -19,7 +19,9 @@ mongoose.connect(DB_URL, {
   console.log(error);
   process.exit(1);
 })
-
+app.use(express.json({ extended: false }));
+//Register handler for Item routes
+app.use('/api/items', require("./routes/items"));
 app.use('/api_docs', swaggerUi.serve, swaggerUi.setup(swagger_options));
 
 app.listen(PORT, () => console.log(`API server running at ${PORT}`));
