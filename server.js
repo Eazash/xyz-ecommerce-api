@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const mongoose = require('mongoose');
-const DB_URL = 'mongodb://localhost:27017/xyz';
+const DB_URL = 'mongodb+srv://user:pass@xyz-db.hum5v.mongodb.net/<xyz>?retryWrites=true&w=majority';
 const YAML = require('yamljs');
 const path = require('path');
 require('dotenv').config()
