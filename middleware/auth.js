@@ -12,10 +12,8 @@ module.exports = function (req, res, next) {
   try {
     const { user } = jwt.verify(token, APP_SECRET, { algorithms: ["HS256"] });
     req.user = { id: user._id };
-    console.log(req.user)
     return next();
   } catch (error) {
-    console.log(token)
     if (error instanceof jwt.JsonWebTokenError) {
       console.log(error);
       return res.sendStatus(401);
