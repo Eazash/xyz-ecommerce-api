@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
 const { Error } = require('mongoose');
+const multer = require('multer');
+const storage = require('../utils/pictureStorage');
+const upload = multer({ storage });
+const path = require('path');
+const { existsSync } = require('fs');
+const { readdir, rmdir, unlink } = require('fs').promises;
 
 router.get('/', async (req, res) => {
   const limit = parseInt(req.query.limit);
@@ -21,7 +27,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const item = await Item.findById(req.params.id).populate('vendor', 'username');
+    const item = await Item.findById(req.params.id).populate("vendor", ["username", "email"])
     if (item === null) {
       return res.sendStatus(404)
     }
@@ -49,10 +55,10 @@ router.post('/', async (req, res) => {
   }
 })
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.fields([{ name: "pictures" }]), async (req, res) => {
   const itemData = ({ name, description, price } = req.body);
   try {
-    const updatedItem = await Item.findByIdAndUpdate(req.params.id, { ...itemData }, { new: true, omitUndefined: true })
+    const updatedItem = await Item.findByIdAndUpdate(req.params.id, { ...itemData }, { new: true, omitUndefined: true }).populate("vendor", ["username", "email"])
     if (updatedItem === null) {
       return res.sendStatus(400)
     }
@@ -61,11 +67,76 @@ router.put("/:id", async (req, res) => {
     if (error instanceof Error.DocumentNotFoundError) {
       return res.sendStatus(404);
     }
+    if (error instanceof multer.MulterError) {
+      return res.status(400).send("Error during file upload");
+    }
     console.log(error);
     return res.sendStatus(500);
   }
 })
-
+router.get("/:id/pictures", async (req, res) => {
+  const pathToPictures = path.join(process.cwd(), 'public', req.params.id);
+  try {
+    const files = await readdir(pathToPictures, { withFileTypes: true });
+    return res.json(files);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return res.sendStatus(404);
+    }
+    console.log(error);
+    return res.sendStatus(500);
+  }
+})
+router.get("/:id/pictures/:filename", async (req, res) => {
+  try {
+    return res.sendFile(req.params.filename, { root: path.join(process.cwd(), 'public', req.params.id) });
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return res.sendStatus(404);
+    }
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+router.delete("/:id/pictures", async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (item === null) {
+      return res.sendStatus(404);
+    }
+    if (!item.vendor.equals(req.user.id)) {
+      return res.sendStatus(403);
+    }
+    await rmdir(path.join(process.cwd(), 'public', req.params.id), { recursive: true });
+    return res.sendStatus(200);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return res.sendStatus(404);
+    }
+    console.log(error);
+    return res.sendStatus(500);
+  }
+})
+router.delete("/:id/pictures/:filename", async (req, res) => {
+  try {
+    const fileExists = existsSync(path.join(process.cwd(), 'public', req.params.id, req.params.filename));
+    if (!fileExists) {
+      return res.sendStatus(400);
+    }
+    const item = await Item.findById(req.params.id);
+    if (!item.vendor.equals(req.user.id)) {
+      return res.sendStatus(403);
+    }
+    await unlink(path.join(process.cwd(), 'public', req.params.id, req.params.filename));
+    return res.sendStatus(200)
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return res.sendStatus(404);
+    }
+    console.log(error);
+    return res.sendStatus(500);
+  }
+})
 router.delete("/:id", async (req, res) => {
   try {
     const tobeDeleted = await Item.findById(req.params.id);
