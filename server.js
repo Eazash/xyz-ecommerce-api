@@ -6,7 +6,9 @@ const PORT = process.env.PORT || 5000;
 const mongoose = require('mongoose');
 const DB_URL = 'mongodb://localhost:27017/xyz';
 const YAML = require('yamljs');
+const path = require('path');
 require('dotenv').config()
+process.env.PUBLIC_DIR = path.join(process.cwd(), 'public');
 
 const swagger_options = YAML.load('./swagger.yml');
 const swaggerUi = require('swagger-ui-express');

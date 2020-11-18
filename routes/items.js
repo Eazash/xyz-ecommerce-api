@@ -75,7 +75,7 @@ router.put("/:id", upload.fields([{ name: "pictures" }]), async (req, res) => {
   }
 })
 router.get("/:id/pictures", async (req, res) => {
-  const pathToPictures = path.join(process.cwd(), 'public', req.params.id);
+  const pathToPictures = path.join(process.env.PUBLIC_DIR, req.params.id);
   try {
     const files = await readdir(pathToPictures, { withFileTypes: true });
     return res.json(files);
@@ -89,7 +89,7 @@ router.get("/:id/pictures", async (req, res) => {
 })
 router.get("/:id/pictures/:filename", async (req, res) => {
   try {
-    return res.sendFile(req.params.filename, { root: path.join(process.cwd(), 'public', req.params.id) });
+    return res.sendFile(req.params.filename, { root: path.join(process.env.PUBLIC_DIR, req.params.id) });
   } catch (error) {
     if (error.code === 'ENOENT') {
       return res.sendStatus(404);
@@ -107,7 +107,7 @@ router.delete("/:id/pictures", async (req, res) => {
     if (!item.vendor.equals(req.user.id)) {
       return res.sendStatus(403);
     }
-    await rmdir(path.join(process.cwd(), 'public', req.params.id), { recursive: true });
+    await rmdir(path.join(process.env.PUBLIC_DIR, req.params.id), { recursive: true });
     return res.sendStatus(200);
   } catch (error) {
     if (error.code === 'ENOENT') {
@@ -119,7 +119,7 @@ router.delete("/:id/pictures", async (req, res) => {
 })
 router.delete("/:id/pictures/:filename", async (req, res) => {
   try {
-    const fileExists = existsSync(path.join(process.cwd(), 'public', req.params.id, req.params.filename));
+    const fileExists = existsSync(path.join(process.env.PUBLIC_DIR, req.params.id, req.params.filename));
     if (!fileExists) {
       return res.sendStatus(400);
     }
@@ -127,7 +127,7 @@ router.delete("/:id/pictures/:filename", async (req, res) => {
     if (!item.vendor.equals(req.user.id)) {
       return res.sendStatus(403);
     }
-    await unlink(path.join(process.cwd(), 'public', req.params.id, req.params.filename));
+    await unlink(path.join(process.env.PUBLIC_DIR, req.params.id, req.params.filename));
     return res.sendStatus(200)
   } catch (error) {
     if (error.code === 'ENOENT') {
