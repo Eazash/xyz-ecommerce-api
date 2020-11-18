@@ -142,6 +142,20 @@ paths:
             type: string
             description: The id of the item to update
           required: true
+      requestBody:
+        description: Data to be updated about the item
+        content:
+          application/json:
+            schema:
+              $ref: '#/component/schemas/Item'
+          mutipart/form-data:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/Item'
+                - title: pictures
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/File'
     delete:
       summary: Delete an Item
       responses:
@@ -154,6 +168,36 @@ paths:
             type: string
             description: The id of the item to be deleted
           required: true
+  /api/items/{id}/pictures:
+    get:
+      summary: Get pictures of an item
+      responses:
+        '200':
+          description: Successfully fetched list of pictures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    delete:
+      summary: Clear pictures of an Items
+      responses:
+        '200':
+          description: Successfully cleared pictures
+  /api/items/{id}/pictures/{filename}:
+    get:
+      summary: Get a picture with name `filename` for a picture
+      responses:
+        '200':
+          description: Image
+          content:
+            image/png: {}
+    delete:
+      summary: Delete a picture of an Item
+      responses:
+        '200':
+          description: Picture successfully deleted
   /api/users:
     post:
       summary: Register a new User
