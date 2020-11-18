@@ -30,6 +30,9 @@ app.use('/api/items', require("./routes/items"));
 
 //Register handler for User routes and login and auth
 app.use('/api/users', require("./routes/users"));
+
+//Register handler for Cart related routes
+app.use('/api/cart', require("./routes/carts"));
 app.use('/api_docs', swaggerUi.serve, swaggerUi.setup(swagger_options));
 
 app.listen(PORT, () => console.log(`API server running at ${PORT}`));

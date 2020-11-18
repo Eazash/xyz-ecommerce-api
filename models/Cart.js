@@ -1,9 +1,30 @@
 const { Schema, model } = require('mongoose');
-
+const Item = require('./Item')
 const CartSchema = new Schema({
   items: [
-    { type: Schema.Types.ObjectId, ref: "item" }
+    {
+      item: {
+        type: Schema.Types.ObjectId,
+        ref: "Item",
+        required: true,
+        validate: {
+          validator: async function (v) {
+            return Item.exists(v);
+          },
+          message: props => `Invalid Item id: ${props.value}`
+        }
+      },
+      quantity: {
+        type: Number,
+        required: true
+      }
+    }
   ],
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
   updatedAt: {
     type: Date,
     default: new Date()
