@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const item = await Item.findById(req.params.id).populate('vendor', 'username');
+    const item = await Item.findById(req.params.id).populate("vendor", ["username", "email"])
     if (item === null) {
       return res.sendStatus(404)
     }
@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
 router.put("/:id", upload.fields([{ name: "pictures" }]), async (req, res) => {
   const itemData = ({ name, description, price } = req.body);
   try {
-    const updatedItem = await Item.findByIdAndUpdate(req.params.id, { ...itemData }, { new: true, omitUndefined: true })
+    const updatedItem = await Item.findByIdAndUpdate(req.params.id, { ...itemData }, { new: true, omitUndefined: true }).populate("vendor", ["username", "email"])
     if (updatedItem === null) {
       return res.sendStatus(400)
     }
