@@ -19,6 +19,12 @@ components:
         vendor:
           type: object
           description: The vendor of the Item
+          properties:
+            username:
+              type: string
+            email:
+              type: string
+              format: email
     User:
       required:
         - email
@@ -37,6 +43,22 @@ components:
       properties:
         token:
           type: string
+    CartItem:
+      title: Cart Item
+      description: An item in Cart
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/Item'
+        quantity:
+          type: number
+          minimum: 0
+    Cart:
+      description: A user's cart
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/CartItem'
   securitySchemes:
     bearerAuth:
       type: http
@@ -168,3 +190,53 @@ paths:
               schema:
                 $ref:  "#/components/schemas/Token"
       security: []
+  /api/cart:
+    get:
+      summary: Get cart details
+      responses:
+        '200':
+          description: An array of items in the cart
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem'
+    delete:
+      summary: Clear the cart
+      responses:
+        '200':
+          description: Cart sucessfully cleared
+    put:
+      summary: Add items to cart
+      requestBody:
+        description: An array of items and their quantity to add to cart
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      responses:
+       '200':
+          description: Items added to cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+  /api/cart/{itemId}:
+    delete:
+      summary: Remove an Item from carrt
+      responses:
+        '200':
+          description: Item succesfully Removed from cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            description: The id of the item to be removed
+          required: true
